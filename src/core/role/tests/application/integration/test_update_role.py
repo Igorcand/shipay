@@ -22,9 +22,9 @@ class TestDeleteRole:
         use_case = UpdateRole(repository=repository)
         use_case.execute(UpdateRole.Input(id=role.id, description="Developer Sr"))
 
-        updated_room = repository.get_by_id(role.id)
-        assert updated_room.id == role.id
-        assert updated_room.description == "Developer Sr"
+        updated_role = repository.get_by_id(role.id)
+        assert updated_role.id == role.id
+        assert updated_role.description == "Developer Sr"
 
 
     def test_update_role_when_role_not_found_then_raise_exception(self):

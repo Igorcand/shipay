@@ -22,9 +22,9 @@ class TestDeleteClaim:
         use_case = UpdateClaim(repository=repository)
         use_case.execute(UpdateClaim.Input(id=claim.id, description="claim2"))
 
-        updated_room = repository.get_by_id(claim.id)
-        assert updated_room.id == claim.id
-        assert updated_room.description == "claim2"
+        updated_claim = repository.get_by_id(claim.id)
+        assert updated_claim.id == claim.id
+        assert updated_claim.description == "claim2"
 
     def test_activate_claim_from_repository(self):
         claim = Claim(
@@ -37,10 +37,10 @@ class TestDeleteClaim:
         use_case = UpdateClaim(repository=repository)
         use_case.execute(UpdateClaim.Input(id=claim.id, active=True))
 
-        updated_room = repository.get_by_id(claim.id)
-        assert updated_room.id == claim.id
-        assert updated_room.description == "claim"
-        assert updated_room.active == True
+        updated_claim = repository.get_by_id(claim.id)
+        assert updated_claim.id == claim.id
+        assert updated_claim.description == "claim"
+        assert updated_claim.active == True
 
     def test_deactivate_claim_from_repository(self):
         claim = Claim(
@@ -54,10 +54,10 @@ class TestDeleteClaim:
         use_case = UpdateClaim(repository=repository)
         use_case.execute(UpdateClaim.Input(id=claim.id, active=False))
 
-        updated_room = repository.get_by_id(claim.id)
-        assert updated_room.id == claim.id
-        assert updated_room.description == "claim"
-        assert updated_room.active == False
+        updated_claim = repository.get_by_id(claim.id)
+        assert updated_claim.id == claim.id
+        assert updated_claim.description == "claim"
+        assert updated_claim.active == False
 
 
 

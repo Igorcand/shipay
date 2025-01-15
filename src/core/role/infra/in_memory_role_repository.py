@@ -20,9 +20,9 @@ class InMemoryRoleRepository(RoleRepository):
         self.roles.remove(role)
     
     def update(self, role: Role) -> None:
-        old_room = self.get_by_id(role.id)
-        if old_room:
-            self.roles.remove(old_room)
+        old_role = self.get_by_id(role.id)
+        if old_role:
+            self.roles.remove(old_role)
             self.roles.append(role)
     
     def list(self) -> list[Role]:

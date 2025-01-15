@@ -20,9 +20,9 @@ class InMemoryClaimRepository(ClaimRepository):
         self.claims.remove(claim)
     
     def update(self, claim: Claim) -> None:
-        old_room = self.get_by_id(claim.id)
-        if old_room:
-            self.claims.remove(old_room)
+        old_claim = self.get_by_id(claim.id)
+        if old_claim:
+            self.claims.remove(old_claim)
             self.claims.append(claim)
     
     def list(self) -> list[Claim]:
