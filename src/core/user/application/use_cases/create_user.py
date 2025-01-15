@@ -1,3 +1,5 @@
+import random
+import string
 from uuid import UUID
 from dataclasses import dataclass
 from src.core.user.application.use_cases.exceptions import InvalidUserData
@@ -23,6 +25,10 @@ class CreateUser:
 
     def execute(self, input: Input):
         try:
+            if not input.password:
+                caracteres = string.ascii_letters + string.digits + string.punctuation
+                input.password =  ''.join(random.choice(caracteres) for _ in range(12))
+                
             user = User(
                 name=input.name,
                 email=input.email,

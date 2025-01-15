@@ -22,11 +22,15 @@ class TestDeleteUser:
         repository = InMemoryUserRepository(users=[user])
 
         use_case = UpdateUser(repository=repository)
-        use_case.execute(UpdateUser.Input(id=user.id, email="developer@email.com"))
+        new_role_id = uuid4()
+        use_case.execute(UpdateUser.Input(id=user.id, email="developer@email.com", password="123", role_id=new_role_id))
 
         updated_user = repository.get_by_id(user.id)
         assert updated_user.id == user.id
         assert updated_user.email == "developer@email.com"
+        assert updated_user.password == "123"
+        assert updated_user.role_id == new_role_id
+
 
 
     def test_update_user_when_user_not_found_then_raise_exception(self):
