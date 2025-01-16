@@ -1,7 +1,9 @@
 from uuid import UUID
 from dataclasses import dataclass
 from src.core.user.domain.user_repository import UserRepository
-from src.core.user.application.use_cases.exceptions import UserNotFound, InvalidUserData
+from src.core.role.domain.role_repository import RoleRepository
+
+from src.core.user.application.use_cases.exceptions import UserNotFound, InvalidUserData, RelatedRolesNotFound
 
 class UpdateUser:
     @dataclass
@@ -11,14 +13,22 @@ class UpdateUser:
         password: str | None = None
         role_id: UUID | None = None
 
-    def __init__(self, repository: UserRepository) -> None:
+    def __init__(self, repository: UserRepository, role_repository: RoleRepository) -> None:
         self.repository = repository
+        self.role_repository = role_repository
 
     def execute(self, input: Input) -> None:
         user = self.repository.get_by_id(id=input.id)
         if user is None:
             raise UserNotFound(f"User with {input.id} not found")
 
+        if input.role_id:
+            role_ids = {category.id for category in self.role_repository.list()}
+            if not input.role_id in role_ids:
+                raise RelatedRolesNotFound(
+                    f"Role id not found: {input.role_id}"
+                )
+        
         current_email = user.email
         current_password = user.password
         current_role_id = user.role_id
