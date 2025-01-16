@@ -26,7 +26,7 @@ class TestListUser:
             id=id, 
             name="John",
             email="dev@email.com",
-            role_id=uuid4()
+            role_ids={uuid4()}
             )
         mock_repository = create_autospec(UserRepository)
         mock_repository.list.return_value = [user]
@@ -40,7 +40,7 @@ class TestListUser:
                     id=user.id,
                     name=user.name,
                     email=user.email,
-                    role_id=user.role_id,
+                    role_ids=user.role_ids,
 
                 ),
             ]

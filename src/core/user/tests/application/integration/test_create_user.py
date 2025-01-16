@@ -20,7 +20,7 @@ class TestCreateUser:
         request = CreateUser.Input(
             name="John",
             email="dev@email.com",
-            role_id=role.id
+            role_ids={role.id}
             )
 
         response = use_case.execute(request)
@@ -36,7 +36,7 @@ class TestCreateUser:
         use_case = CreateUser(repository=repository, role_repository=role_repository)
 
         with pytest.raises(InvalidUserData, match="email cannot be empty") as exc_info:
-            response = use_case.execute(CreateUser.Input(email="", name="John", role_id=role.id))
+            response = use_case.execute(CreateUser.Input(email="", name="John", role_ids={role.id}))
 
     def test_create_user_with_not_related_roles(self):
         repository = InMemoryUserRepository()
@@ -44,6 +44,6 @@ class TestCreateUser:
         use_case = CreateUser(repository=repository, role_repository=role_repository)
 
         with pytest.raises(RelatedRolesNotFound) as exc_info:
-            response = use_case.execute(CreateUser.Input(email="", name="John", role_id=uuid4()))
+            response = use_case.execute(CreateUser.Input(email="", name="John", role_ids={uuid4()}))
     
     

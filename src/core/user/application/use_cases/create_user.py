@@ -1,7 +1,7 @@
 import random
 import string
 from uuid import UUID
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from src.core.user.application.use_cases.exceptions import InvalidUserData, RelatedRolesNotFound
 from src.core.user.domain.user_repository import UserRepository
 from src.core.role.domain.role_repository import RoleRepository
@@ -18,7 +18,7 @@ class CreateUser:
     class Input:
         name: str
         email: str
-        role_id: UUID
+        role_ids: set[UUID] = field(default_factory=set)
         password: str | None = None
 
 
@@ -30,9 +30,9 @@ class CreateUser:
         try:
 
             role_ids = {category.id for category in self.role_repository.list()}
-            if not input.role_id in role_ids:
+            if not input.role_ids.issubset(role_ids):
                 raise RelatedRolesNotFound(
-                    f"Role id not found: {input.role_id}"
+                    f"Role id not found: {input.role_ids - role_ids}"
                 )
         
             if not input.password:
@@ -42,7 +42,7 @@ class CreateUser:
             user = User(
                 name=input.name,
                 email=input.email,
-                role_id=input.role_id,
+                role_ids=input.role_ids,
                 password=input.password,
             )
         except ValueError as e:

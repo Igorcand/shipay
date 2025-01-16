@@ -14,7 +14,7 @@ class TestDeleteUser:
             id=id, 
             name="John",
             email="dev@email.com",
-            role_id=uuid4()
+            role_ids={uuid4()}
             )
 
         mock_repository = create_autospec(UserRepository)

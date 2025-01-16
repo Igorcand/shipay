@@ -26,7 +26,7 @@ class TestListUser:
             id=id, 
             name="John",
             email="dev@email.com",
-            role_id=uuid4()
+            role_ids={uuid4()}
             )
         repository = InMemoryUserRepository(users=[user])
 
@@ -39,7 +39,7 @@ class TestListUser:
                     id=user.id,
                     name=user.name,
                     email=user.email,
-                    role_id=user.role_id,
+                    role_ids=user.role_ids,
 
                 ),
             ]

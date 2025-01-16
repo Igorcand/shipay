@@ -22,20 +22,20 @@ class TestUpdateUser:
             id=id, 
             name="John",
             email="dev@email.com",
-            role_id=role1.id
+            role_ids={role1.id}
             )
 
         repository = InMemoryUserRepository(users=[user])
 
         use_case = UpdateUser(repository=repository, role_repository=role_repository)
 
-        use_case.execute(UpdateUser.Input(id=user.id, email="developer@email.com", password="123", role_id=role2.id))
+        use_case.execute(UpdateUser.Input(id=user.id, email="developer@email.com", password="123", role_ids={role2.id}))
 
         updated_user = repository.get_by_id(user.id)
         assert updated_user.id == user.id
         assert updated_user.email == "developer@email.com"
         assert updated_user.password == "123"
-        assert updated_user.role_id == role2.id
+        assert updated_user.role_ids == {role2.id}
 
 
 
@@ -55,7 +55,7 @@ class TestUpdateUser:
             id=id, 
             name="John",
             email="dev@email.com",
-            role_id=uuid4()
+            role_ids={uuid4()}
             )
 
         repository = InMemoryUserRepository(users=[user])
@@ -65,5 +65,5 @@ class TestUpdateUser:
         use_case = UpdateUser(repository=repository, role_repository=role_repository)
 
         with pytest.raises(RelatedRolesNotFound):
-            use_case.execute(input=UpdateUser.Input(id=user.id, email="developer@email.com", role_id=uuid4()))
+            use_case.execute(input=UpdateUser.Input(id=user.id, email="developer@email.com", role_ids={uuid4()}))
         
