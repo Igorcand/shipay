@@ -3,3 +3,6 @@ class InvalidUserData(Exception):
 
 class UserNotFound(Exception):
     pass
+
+class RelatedRolesNotFound(Exception):
+    pass
