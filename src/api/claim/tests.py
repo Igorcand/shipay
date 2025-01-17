@@ -56,10 +56,37 @@ def test_list_claims_success(client, mock_session):
         )
 
         response = client.get('/claims/')
-        assert response.status_code == 201
+        assert response.status_code == 200
         data = response.get_json()
         assert isinstance(data['data'], list)
 
+def test_get_claim_success(client):
+    """
+    Testa a rota GET /<uuid:claim_id> com um ID válido.
+    """
+    claim_id = str(uuid4())
+    mock_claim = {"id": claim_id, "description": "Test Claim", "active": True}
+
+    with patch("src.api.claim.controller.GetClaim") as mock_use_case:
+        mock_use_case.return_value.execute.return_value = mock_claim
+
+        response = client.get(f"/claims/{claim_id}")
+        assert response.status_code == 200
+        assert response.json == mock_claim
+
+def test_get_claim_not_found(client):
+    """
+    Testa a rota GET /<uuid:claim_id> com um ID inexistente.
+    """
+    claim_id = str(uuid4())
+
+    with patch("src.api.claim.controller.GetClaim") as mock_use_case:
+        mock_use_case.return_value.execute.side_effect = ClaimNotFound("Claim not found")
+
+        response = client.get(f"/claims/{claim_id}")
+        assert response.status_code == 404
+        assert response.json == {"error": "Claim not found"}
+        
 def test_update_claim_success(client, mock_session):
     """Testa a rota PATCH /claims/<claim_id> para atualizar uma claim."""
     claim_id = str(uuid4())

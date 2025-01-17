@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
 from http import HTTPStatus
 from src.api.claim.repository import SQLAlchemyClaimRepository
-from src.api.claim.schemas import CreateClaimInputSchema, CreateClaimOutputSchema, ListClaimOutputSchema, UpdateClaimInputSchema
+from src.api.claim.schemas import CreateClaimInputSchema, CreateClaimOutputSchema, ListClaimOutputSchema, UpdateClaimInputSchema, ClaimOutputSchema
 from src.core.claim.application.use_cases.create_claim import CreateClaim
 from src.core.claim.application.use_cases.list_claim import ListClaim
 from src.core.claim.application.use_cases.delete_claim import DeleteClaim
 from src.core.claim.application.use_cases.update_claim import UpdateClaim
+from src.core.claim.application.use_cases.get_claim import GetClaim
 from src.api.database import SessionLocal
 from uuid import UUID
 from src.core.claim.application.use_cases.exceptions import InvalidClaimData, ClaimNotFound
@@ -59,19 +60,23 @@ def list_claims():
 
     # Retorna a resposta com o id da nova claim
     output_data = ListClaimOutputSchema().dump(result)
-    return jsonify(output_data), HTTPStatus.CREATED
+    return jsonify(output_data), HTTPStatus.OK
 
 
-# @bp.route('/<uuid:claim_id>', methods=['GET'])
-# def get_claim(claim_id):
-#     """
-#     Retorna uma claim específica pelo ID.
-#     """
-#     claim = claim_repository.get_by_id(claim_id)
-#     if not claim:
-#         return jsonify({'error': 'Claim não encontrada.'}), HTTPStatus.NOT_FOUND
+@bp.route('/<uuid:claim_id>', methods=['GET'])
+def get_claim(claim_id):
+    """
+    Retorna uma claim específica pelo ID.
+    """
+    use_case = GetClaim(repository=claim_repository)
+    try:
+        result = use_case.execute(input=GetClaim.Input(id=claim_id))
+    except ClaimNotFound as e:
+        return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
+    
+    output_data = ClaimOutputSchema().dump(result)
+    return jsonify(output_data), HTTPStatus.OK
 
-#     return jsonify({'id': claim.id, 'description': claim.description}), HTTPStatus.OK
 
 
 @bp.route('/<uuid:claim_id>', methods=['PATCH'])
