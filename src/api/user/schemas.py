@@ -15,7 +15,7 @@ class UserOutputSchema(Schema):
     id = fields.UUID(required=True)
     name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     email = fields.Str(required=True, validate=validate.Email())
-    role_id = fields.UUID(required=True)
+    role = fields.Str(required=True, validate=validate.Length(max=255))
 
 class GetUserOutputSchema(Schema):
     id = fields.UUID(required=True)

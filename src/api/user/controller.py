@@ -59,7 +59,7 @@ def list_users():
     """
     # Executa o caso de uso
 
-    use_case = ListUser(repository=user_repository)
+    use_case = ListUser(repository=user_repository, role_repository=role_repository)
     try:
         result = use_case.execute(input=ListUser.Input())
     except Exception as e:
