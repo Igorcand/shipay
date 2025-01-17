@@ -84,7 +84,7 @@ def update_role(role_id: UUID):
     data = request.get_json()
     try:
         validated_input = UpdateRoleInputSchema().load(data)
-    except InvalidRoleData as e:
+    except Exception as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
     
     use_case = UpdateRole(repository=role_repository)

@@ -28,7 +28,7 @@ def create_claim():
     data = request.get_json()
     try:
         validated_input = CreateClaimInputSchema().load(data)
-    except InvalidClaimData as e:
+    except Exception as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
 
     # Executa o caso de uso
@@ -84,7 +84,7 @@ def update_claim(claim_id: UUID):
     data = request.get_json()
     try:
         validated_input = UpdateClaimInputSchema().load(data)
-    except InvalidClaimData as e:
+    except Exception as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
     
     use_case = UpdateClaim(repository=claim_repository)
