@@ -1,11 +1,13 @@
 from flask import Blueprint, request, jsonify
 from http import HTTPStatus
 from src.api.role.repository import SQLAlchemyRoleRepository
-from src.api.role.schemas import CreateRoleInputSchema, CreateRoleOutputSchema, ListRoleOutputSchema, UpdateRoleInputSchema
+from src.api.role.schemas import CreateRoleInputSchema, CreateRoleOutputSchema, ListRoleOutputSchema, UpdateRoleInputSchema, RoleOutputSchema
 from src.core.role.application.use_cases.create_role import CreateRole
 from src.core.role.application.use_cases.list_role import ListRole
 from src.core.role.application.use_cases.delete_role import DeleteRole
 from src.core.role.application.use_cases.update_role import UpdateRole
+from src.core.role.application.use_cases.get_role import GetRole
+
 from src.api.database import SessionLocal
 from uuid import UUID
 from src.core.role.application.use_cases.exceptions import InvalidRoleData, RoleNotFound
@@ -59,19 +61,23 @@ def list_roles():
 
     # Retorna a resposta com o id da nova role
     output_data = ListRoleOutputSchema().dump(result)
-    return jsonify(output_data), HTTPStatus.CREATED
+    return jsonify(output_data), HTTPStatus.OK
 
 
-# @bp.route('/<uuid:role_id>', methods=['GET'])
-# def get_role(role_id):
-#     """
-#     Retorna uma role específica pelo ID.
-#     """
-#     role = role_repository.get_by_id(role_id)
-#     if not role:
-#         return jsonify({'error': 'Role não encontrada.'}), HTTPStatus.NOT_FOUND
+@bp.route('/<uuid:role_id>', methods=['GET'])
+def get_role(role_id):
+    """
+    Retorna uma role específica pelo ID.
+    """
+    use_case = GetRole(repository=role_repository)
+    try:
+        result = use_case.execute(input=GetRole.Input(id=role_id))
+    except RoleNotFound as e:
+        return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
+    
+    output_data = RoleOutputSchema().dump(result)
+    return jsonify(output_data), HTTPStatus.OK
 
-#     return jsonify({'id': role.id, 'description': role.description}), HTTPStatus.OK
 
 
 @bp.route('/<uuid:role_id>', methods=['PATCH'])

@@ -54,7 +54,7 @@ def test_list_roles_empty(client, mock_session):
         )
 
         response = client.get('/roles/')
-        assert response.status_code == 201
+        assert response.status_code == 200
         data = response.get_json()
         assert isinstance(data['data'], list)
         assert len(data['data']) == 0
@@ -71,9 +71,36 @@ def test_list_roles_success(client, mock_session):
         )
 
         response = client.get('/roles/')
-        assert response.status_code == 201
+        assert response.status_code == 200
         data = response.get_json()
         assert isinstance(data['data'], list)
+
+def test_get_role_success(client):
+    """
+    Testa a rota GET /<uuid:role_id> com um ID válido.
+    """
+    role_id = str(uuid4())
+    mock_role = {"id": role_id, "description": "Admin"}
+
+    with patch("src.api.role.controller.GetRole") as mock_use_case:
+        mock_use_case.return_value.execute.return_value = mock_role
+
+        response = client.get(f"/roles/{role_id}")
+        assert response.status_code == 200
+        assert response.json == mock_role
+
+def test_get_role_not_found(client):
+    """
+    Testa a rota GET /<uuid:role_id> com um ID inexistente.
+    """
+    role_id = str(uuid4())
+
+    with patch("src.api.role.controller.GetRole") as mock_use_case:
+        mock_use_case.return_value.execute.side_effect = RoleNotFound("Role not found")
+
+        response = client.get(f"/roles/{role_id}")
+        assert response.status_code == 404
+        assert response.json == {"error": "Role not found"}
 
 def test_update_role_success(client, mock_session):
     """Testa a rota PATCH /roles/<role_id> para atualizar uma role."""
