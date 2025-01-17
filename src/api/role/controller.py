@@ -28,7 +28,7 @@ def create_role():
     data = request.get_json()
     try:
         validated_input = CreateRoleInputSchema().load(data)
-    except InvalidRoleData as e:
+    except Exception as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
 
     # Executa o caso de uso
