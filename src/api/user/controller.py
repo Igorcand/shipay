@@ -31,12 +31,10 @@ def create_user():
     data = request.get_json()
     try:
         validated_input = CreateUserInputSchema().load(data)
-    except InvalidUserData as e:
+    except Exception as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
 
     # Executa o caso de uso
-    print(validated_input['role_id'])
-    print(type(validated_input['role_id']))
 
     input = CreateUser.Input(name=validated_input['name'], email=validated_input['email'], role_id=validated_input['role_id'], password=validated_input['password'])
     use_case = CreateUser(repository=user_repository, role_repository=role_repository)
@@ -92,7 +90,7 @@ def update_user(user_id: UUID):
     data = request.get_json()
     try:
         validated_input = UpdateUserInputSchema().load(data)
-    except InvalidUserData as e:
+    except Exception as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
     
     use_case = UpdateUser(repository=user_repository, role_repository=role_repository)

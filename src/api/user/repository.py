@@ -42,6 +42,7 @@ class SQLAlchemyUserRepository(UserRepository):
         if user_model:
             user_model.email = user.email
             user_model.password = user.password
+            user_model.role_id = user.role_id
             self.session.commit()
 
     def list(self) -> list[User]:

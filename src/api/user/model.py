@@ -1,5 +1,5 @@
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, String, Integer, Date, ForeignKey, DateTime
+from sqlalchemy import Column, String, Integer, Date, ForeignKey, DateTime, Table
 from src.api.database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -11,11 +11,10 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
     password = Column(String, nullable=False)
-    role_id = Column(UUID(as_uuid=True), ForeignKey("roles.id"), nullable=False)
     created_at = Column(DateTime, default=func.now(), nullable=False)
-    #updated_at = Column(Date, nullable=True)
 
-    # Relacionamento com Role (muitos para um)
+    # Relacionamento com Role (um para muitos)
+    role_id = Column(UUID(as_uuid=True), ForeignKey("roles.id"), nullable=False)
     role = relationship("Role", back_populates="users")
 
     # Relacionamento com Claims (muitos para muitos)
