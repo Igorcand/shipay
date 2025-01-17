@@ -3,11 +3,13 @@ from http import HTTPStatus
 from src.api.user.repository import SQLAlchemyUserRepository
 from src.api.role.repository import SQLAlchemyRoleRepository
 
-from src.api.user.schemas import CreateUserInputSchema, CreateUserOutputSchema, ListUserOutputSchema, UpdateUserInputSchema
+from src.api.user.schemas import CreateUserInputSchema, CreateUserOutputSchema, ListUserOutputSchema, UpdateUserInputSchema, GetUserOutputSchema
 from src.core.user.application.use_cases.create_user import CreateUser
 from src.core.user.application.use_cases.list_user import ListUser
 from src.core.user.application.use_cases.delete_user import DeleteUser
 from src.core.user.application.use_cases.update_user import UpdateUser
+from src.core.user.application.use_cases.get_user import GetUser
+
 from src.api.database import SessionLocal
 from uuid import UUID
 from src.core.user.application.use_cases.exceptions import InvalidUserData, UserNotFound, RelatedRolesNotFound
@@ -68,16 +70,19 @@ def list_users():
     return jsonify(output_data), HTTPStatus.CREATED
 
 
-# # @bp.route('/<uuid:user_id>', methods=['GET'])
-# # def get_user(user_id):
-# #     """
-# #     Retorna uma user específica pelo ID.
-# #     """
-# #     user = user_repository.get_by_id(user_id)
-# #     if not user:
-# #         return jsonify({'error': 'User não encontrada.'}), HTTPStatus.NOT_FOUND
-
-# #     return jsonify({'id': user.id, 'description': user.description}), HTTPStatus.OK
+@bp.route('/<uuid:user_id>', methods=['GET'])
+def get_user(user_id):
+    """
+    Retorna uma role específica pelo ID.
+    """
+    use_case = GetUser(repository=user_repository, role_repository=role_repository)
+    try:
+        result = use_case.execute(input=GetUser.Input(id=user_id))
+    except UserNotFound as e:
+        return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
+    
+    output_data = GetUserOutputSchema().dump(result)
+    return jsonify(output_data), HTTPStatus.OK
 
 
 @bp.route('/<uuid:user_id>', methods=['PATCH'])
