@@ -17,7 +17,7 @@ class TestUpdateUser:
             id=id, 
             name="John",
             email="dev@email.com",
-            role_ids={uuid4()}
+            role_id=uuid4()
             )
 
         mock_role_repository = MagicMock(RoleRepository)

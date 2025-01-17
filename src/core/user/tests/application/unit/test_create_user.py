@@ -22,7 +22,7 @@ class TestCreateUser:
         request = CreateUser.Input(
             name="John",
             email="dev@email.com",
-            role_ids={role.id}
+            role_id=role.id
             )
 
         response = use_case.execute(request)

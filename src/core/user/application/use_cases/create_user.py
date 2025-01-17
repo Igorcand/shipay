@@ -18,7 +18,7 @@ class CreateUser:
     class Input:
         name: str
         email: str
-        role_ids: set[UUID] = field(default_factory=set)
+        role_id: UUID
         password: str | None = None
 
 
@@ -30,9 +30,9 @@ class CreateUser:
         try:
 
             role_ids = {category.id for category in self.role_repository.list()}
-            if not input.role_ids.issubset(role_ids):
+            if input.role_id not in role_ids:
                 raise RelatedRolesNotFound(
-                    f"Role id not found: {input.role_ids - role_ids}"
+                    f"Role id not found: {input.role_id}"
                 )
         
             if not input.password:
@@ -42,7 +42,7 @@ class CreateUser:
             user = User(
                 name=input.name,
                 email=input.email,
-                role_ids=input.role_ids,
+                role_id=input.role_id,
                 password=input.password,
             )
         except ValueError as e:

@@ -6,8 +6,8 @@ from typing import Set
 class User():
     name : str
     email : str
+    role_id : UUID
     password : str | None = None
-    role_ids : set[UUID] = field(default_factory=set)
     id: UUID = field(default_factory=uuid4)
 
     def __post_init__(self):
@@ -26,10 +26,10 @@ class User():
         if len(self.name) > 255:
             raise ValueError("name cannot be longer than 255")
     
-    def update_user(self, email: str, password: str, role_ids: Set[UUID]):
+    def update_user(self, email: str, password: str, role_id: UUID):
         self.email = email
         self.password = password
-        self.role_ids = role_ids
+        self.role_id = role_id
 
         self.validate()
 

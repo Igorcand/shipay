@@ -16,12 +16,12 @@ class TestUser:
             id=id, 
             name="John",
             email="dev@email.com",
-            role_ids={role_id}
+            role_id=role_id
             )
         
         assert user.id == id
         assert user.name == "John"
         assert user.email == "dev@email.com"
-        assert user.role_ids == {role_id}
+        assert user.role_id == role_id
 
 

@@ -8,7 +8,7 @@ class UserOutput:
     id: UUID
     name: str
     email: str
-    role_ids: UUID
+    role_id: UUID
 
 
 
@@ -33,7 +33,7 @@ class ListUser:
                     id=user.id,
                     name=user.name,
                     email=user.email,
-                    role_ids=user.role_ids,
+                    role_id=user.role_id,
                 ) for user in users
             ])
     
