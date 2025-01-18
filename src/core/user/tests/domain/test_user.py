@@ -12,16 +12,22 @@ class TestUser:
         id = uuid4()
         role_id = uuid4()
 
+        claim_id1 = uuid4()
+        claim_id2 = uuid4()
+
+
         user = User(
             id=id, 
             name="John",
             email="dev@email.com",
-            role_id=role_id
+            role_id=role_id,
+            claim_ids={claim_id1, claim_id2}
             )
         
         assert user.id == id
         assert user.name == "John"
         assert user.email == "dev@email.com"
         assert user.role_id == role_id
+        assert user.claim_ids == {claim_id1, claim_id2}
 
 

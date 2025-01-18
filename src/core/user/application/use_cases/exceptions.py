@@ -6,3 +6,6 @@ class UserNotFound(Exception):
 
 class RelatedRolesNotFound(Exception):
     pass
+
+class RelatedClaimNotFound(Exception):
+    pass
