@@ -18,7 +18,7 @@ from src.core.user.application.use_cases.update_user import UpdateUser
 from src.core.user.application.use_cases.get_user import GetUser
 from src.api.database import SessionLocal
 from uuid import UUID
-from src.core.user.application.use_cases.exceptions import InvalidUserData, UserNotFound
+from src.core.user.application.use_cases.exceptions import InvalidUserData, UserNotFound, RelatedClaimNotFound, RelatedRolesNotFound
 from sqlalchemy.orm import Session
 from flasgger import Swagger
 
@@ -72,6 +72,8 @@ def create_user():
         result = use_case.execute(input=input)
     except InvalidUserData as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
+    except (UserNotFound, RelatedClaimNotFound, RelatedRolesNotFound) as e:
+        return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
 
     output_data = CreateUserOutputSchema().dump(result)
     return jsonify(output_data), HTTPStatus.CREATED
@@ -173,7 +175,7 @@ def update_user(user_id: UUID):
     use_case = UpdateUser(repository=user_repository, role_repository=role_repository, claim_repository=claim_repository)
     try:
         use_case.execute(input=UpdateUser.Input(id=user_id, password=validated_input['password'], email=validated_input['email'], role_id=validated_input["role_id"]))
-    except UserNotFound as e:
+    except (UserNotFound, RelatedClaimNotFound, RelatedRolesNotFound) as e:
         return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
 
     return "", HTTPStatus.NO_CONTENT

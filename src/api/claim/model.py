@@ -11,7 +11,7 @@ class Claim(Base):
     active = Column(Boolean, nullable=False, default=False)
 
     # Relacionamento reverso com os usuários (muitos para muitos)
-    users = relationship("User", secondary="user_claims", back_populates="claims")
+    users = relationship("User", secondary="user_claims", back_populates="claims", overlaps="user_claims")
 
     def to_dict(self):
         return {
