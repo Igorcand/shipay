@@ -6,6 +6,7 @@ class CreateUserInputSchema(Schema):
     email = fields.Str(required=True, validate=validate.Email())
     role_id = fields.UUID(required=True)
     password = fields.Str(load_default=None, allow_none=True)
+    claim_ids = fields.List(fields.UUID(), load_default=[])
 
 
 class CreateUserOutputSchema(Schema):
@@ -16,6 +17,7 @@ class UserOutputSchema(Schema):
     name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     email = fields.Str(required=True, validate=validate.Email())
     role = fields.Str(required=True, validate=validate.Length(max=255))
+    claims = fields.List(fields.Str())
 
 class GetUserOutputSchema(Schema):
     id = fields.UUID(required=True)
@@ -29,3 +31,5 @@ class ListUserOutputSchema(Schema):
 class UpdateUserInputSchema(Schema):
     email = fields.Str(load_default=None, validate=validate.Email())
     password = fields.Str(load_default=None, allow_none=True)
+    role_id = fields.UUID(load_default=None, allow_none=True)
+    claim_ids = fields.List(fields.UUID(), load_default=[])

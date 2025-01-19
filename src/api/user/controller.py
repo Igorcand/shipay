@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify
 from http import HTTPStatus
 from src.api.user.repository import SQLAlchemyUserRepository
+from src.api.role.repository import SQLAlchemyRoleRepository
+from src.api.claim.repository import SQLAlchemyClaimRepository
+
 from src.api.user.schemas import (
     CreateUserInputSchema,
     CreateUserOutputSchema,
@@ -25,6 +28,8 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 # Instância do repositório
 session: Session = SessionLocal()
 user_repository = SQLAlchemyUserRepository(session)
+role_repository = SQLAlchemyRoleRepository(session)
+claim_repository = SQLAlchemyClaimRepository(session)
 
 # Inicializando o Swagger
 swagger = Swagger()
@@ -61,8 +66,8 @@ def create_user():
     except Exception as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
 
-    input = CreateUser.Input(name=validated_input['name'], email=validated_input['email'])
-    use_case = CreateUser(repository=user_repository)
+    input = CreateUser.Input(name=validated_input['name'], email=validated_input['email'], role_id=validated_input["role_id"], claim_ids=set(validated_input["claim_ids"]))
+    use_case = CreateUser(repository=user_repository, role_repository=role_repository, claim_repository=claim_repository)
     try:
         result = use_case.execute(input=input)
     except InvalidUserData as e:
@@ -87,7 +92,7 @@ def list_users():
       400:
         description: Erro ao listar usuários
     """
-    use_case = ListUser(repository=user_repository)
+    use_case = ListUser(repository=user_repository, role_repository=role_repository, claim_repository=claim_repository)
     try:
         result = use_case.execute(input=ListUser.Input())
     except Exception as e:
@@ -118,7 +123,7 @@ def get_user(user_id):
       404:
         description: Usuário não encontrado
     """
-    use_case = GetUser(repository=user_repository)
+    use_case = GetUser(repository=user_repository, role_repository=role_repository, claim_repository=claim_repository)
     try:
         result = use_case.execute(input=GetUser.Input(id=user_id))
     except UserNotFound as e:
@@ -165,9 +170,9 @@ def update_user(user_id: UUID):
     except Exception as e:
         return jsonify({"error": str(e)}), HTTPStatus.BAD_REQUEST
 
-    use_case = UpdateUser(repository=user_repository)
+    use_case = UpdateUser(repository=user_repository, role_repository=role_repository, claim_repository=claim_repository)
     try:
-        use_case.execute(input=UpdateUser.Input(id=user_id, name=validated_input['name'], email=validated_input['email']))
+        use_case.execute(input=UpdateUser.Input(id=user_id, password=validated_input['password'], email=validated_input['email'], role_id=validated_input["role_id"]))
     except UserNotFound as e:
         return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
 
