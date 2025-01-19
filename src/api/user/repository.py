@@ -1,9 +1,12 @@
 from uuid import UUID
 from src.api.user.model import User as UserModel
 from src.api.user.model import UserClaim
+from src.api.claim.model import  Claim 
+
 from src.core.user.domain.user_repository import UserRepository
 from src.core.user.domain.user import User
 from sqlalchemy.orm import Session
+
 
 class SQLAlchemyUserRepository(UserRepository):
     def __init__(self, session: Session):
@@ -29,8 +32,15 @@ class SQLAlchemyUserRepository(UserRepository):
     def get_by_id(self, id: UUID) -> User | None:
         user_model = self.session.query(UserModel).filter_by(id=id).first()
         if user_model:
+            # Filtra claims ativas associadas ao usuário
             claim_ids = {
-                claim.claim_id for claim in self.session.query(UserClaim).filter_by(user_id=id).all()
+                claim.claim_id
+                for claim in (
+                    self.session.query(UserClaim)
+                    .join(Claim, Claim.id == UserClaim.claim_id)
+                    .filter(UserClaim.user_id == id, Claim.active == True)
+                    .all()
+                )
             }
             return User(
                 id=user_model.id,
@@ -67,9 +77,15 @@ class SQLAlchemyUserRepository(UserRepository):
         user_models = self.session.query(UserModel).all()
         users = []
         for user_model in user_models:
-            # Obtém as claims associadas a cada usuário
+            # Filtra claims ativas associadas a cada usuário
             claim_ids = {
-                claim.claim_id for claim in self.session.query(UserClaim).filter_by(user_id=user_model.id).all()
+                claim.claim_id
+                for claim in (
+                    self.session.query(UserClaim)
+                    .join(Claim, Claim.id == UserClaim.claim_id)
+                    .filter(UserClaim.user_id == user_model.id, Claim.active == True)
+                    .all()
+                )
             }
             users.append(
                 User(
