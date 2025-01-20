@@ -9,7 +9,7 @@ O projeto foi desenvolido utilizando os princípios de Arquitetura Limpa e Arqui
 
 A pasta "core" é responsável por separar todas as regras de negócio e de aplicação, onde cada pasta interna (user, claim, role) representa um núcleo separado, onde declaramos nosso domínio com as entidades principais, e também geramos nossos caso de uso da aplicação (cadastrar, listar, atualizar e deletar). Perceba que criado um CRUD sem a necessidade de um serviço web, pois como é apresentado na Arquitetura Hexagonal, a aplicação web chega para agregar no isstema e não para ter dentro das regras de negócio.
 
-Portanto, a pasta "api" representa toda a aplicação web gerada, com os endpoints para cada caso de uso criado no núcleo da nossa aplicação. Que por sua vez, também foi dividida em pastas de acordo com cada domainpara seguir os conceitos de Arquitetura Hexagonal.
+Portanto, a pasta "api" representa toda a aplicação web gerada, com os endpoints para cada caso de uso criado no núcleo da nossa aplicação. Que por sua vez, também foi dividida em pastas de acordo com cada domain para seguir os conceitos de Arquitetura Hexagonal.
 
 ## Como rodar esse projeto
 
@@ -47,7 +47,7 @@ pytest
 
 Para melhor visualização das rotas, acesse o endpoint http://127.0.0.1:8000/apidocs para visualizar o swagger
 
-![api](https://github.com/Igorcand/shipay/blob/master/assets/swagger.png)
+![api](https://github.com/Igorcand/shipay/blob/main/assets/swagger.png)
 
 # QUESTÕES # 
 
@@ -132,12 +132,12 @@ Para transformar esse objeto User no retorno esperado, foi feito o manuseio das 
 ## 3 - Utilizando a mesma estrutura do banco de dados fornecida anteriormente, e a linguagem que desejar, construa uma API REST que irá listar o papel de um usuário pelo “Id” (role_id).
 No end-point /users/<id> com o método HTTP GET, podemos visualizar as informações do usuário. Internamente, existe uma classe do domínio que se chama User, e nela existe o campo role_id que armazena um UUID relacionado a algum registro da tabela Role. E é feito a mudança para a descrição da role nos usecases de user.
 
-![q3](https://github.com/Igorcand/shipay/blob/master/assets/get_user_route.png)
+![q3](https://github.com/Igorcand/shipay/blob/main/assets/get_user_route.png)
 
 ## 4 - Utilizando a mesma estrutura do banco de dados fornecida anteriormente, e a linguagem que desejar, construa uma API REST que irá criar um usuário. Os campos obrigatórios serão nome, e-mail e papel do usuário. A senha será um campo opcional, caso o usuário não informe uma senha o serviço da API deverá gerar essa senha automaticamente.
 No end-point /users/ com o método HTTP POST, podemos criar um registro de usuário. Como descrito no enunciado, os campos obrigatório são nome, email e role, caso não informe algum desses dados, o erro será retornado para o usuário com o status code 400, bad request.
 
-![q3](https://github.com/Igorcand/shipay/blob/master/assets/post_user_route.png)
+![q3](https://github.com/Igorcand/shipay/blob/main/assets/post_user_route.png)
 
 O campo senha é opcional e está sendo criado no use case CreateUser. Para melhor visualização acesse o arquivo src/core/user/application/use_cases/create_user.py
 
@@ -167,6 +167,8 @@ docker-compose up --build
 
 Para realizar o deploy da aplicação, foi configurado um pipeline no GitHub Action para poder fazer o deploy de forma automática. os steps configurados foram: Configuração do ambiente Docker, Build da imagem Docker, Execução dos tests, Envio da imgame Docker para o DockerHub, e Deploy para a AWS.
 Para visualizar com maior detalhamento acesse o arquivo: /.github/workflows/deploy.yaml
+
+![q5](https://github.com/Igorcand/shipay/blob/main/assets/pipeline.png)
 
 ## 6 - De acordo com o log capturado, o que pode estar originando a falha?
 

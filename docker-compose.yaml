@@ -8,7 +8,7 @@ services:
     ports:
       - "8000:8000"  # Mapeia a porta 8000 do host para o container
     environment:
-      - FLASK_ENV=production  # Define o ambiente para produção
+      - FLASK_DEBUG=production  # Define o ambiente para produção
     volumes:
       - .:/app  # Mapeia o diretório atual para o container
     restart: always  # Garante que o serviço reinicie automaticamente em falhas

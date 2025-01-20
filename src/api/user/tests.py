@@ -74,7 +74,7 @@ def test_list_users_success(client):
         mock_use_case.return_value.execute.return_value = mock_users
 
         response = client.get("/users/")
-        assert response.status_code == 201
+        assert response.status_code == 200
 
 
 def test_update_user_success(client):
