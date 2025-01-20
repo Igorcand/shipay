@@ -53,7 +53,9 @@ Para melhor visualização das rotas, acesse o endpoint http://127.0.0.1:8000/ap
 
 ## 1 - Construa uma consulta SQL que retorne o nome, e-mail, a descrição do papel e as descrições das permissões/claims que um usuário possui. ##
 
-Para realizarmos esse tipo de consulta precisamos realizar alguns joins para formar tabelas com todas as informações necessárias para a query. O primeiro join foi utilizado com o comando INNER JOIN, pois como o campo role_id é uma chave estrangeira da tabela role, temos a certeza que para cada registro de user temos um registro de role correspondente, então o INNER JOIN retorna apenas os registros que possuem correspondência em ambas as tabelas. Após isso, fazemos mais dois joins utilizando o comando LEFT JOIN, pois as permissões (claims) são itens não obrigatórios, logo o comando utilizado nos retorna todos os registros a esquerda, ou seja, todos os usuários aparecerão mesmo os que não tem permissões.
+Para realizar esse tipo de consulta, é necessário utilizar joins para combinar tabelas e obter todas as informações necessárias para a query. O primeiro join foi realizado com o comando INNER JOIN, pois o campo role_id é uma chave estrangeira na tabela role. Como temos a garantia de que cada registro na tabela user possui um registro correspondente na tabela role, o INNER JOIN retorna apenas os registros que possuem correspondência em ambas as tabelas.
+
+Em seguida, realizamos mais dois joins utilizando o comando LEFT JOIN. Isso ocorre porque as permissões (ou claims) são itens opcionais. O uso do LEFT JOIN garante que todos os registros da tabela à esquerda (usuários) sejam incluídos no resultado, mesmo que não existam permissões associadas a alguns deles. Dessa forma, conseguimos incluir todos os usuários, independentemente de terem ou não permissões associadas.
 
 ```
     SELECT 
@@ -76,7 +78,7 @@ Para realizarmos esse tipo de consulta precisamos realizar alguns joins para for
 
 ## 2 -  Utilizando a mesma estrutura do banco de dados da questão anterior, rescreva a consulta anterior utilizando um ORM (Object Relational Mapping) de sua preferência utilizando a query language padrão do ORM adotado(SQL Alchemy)
 
-Para a realização dessa query, utilizando os conceitos de Arquitetura Hexagonal adotado para o projeto, foi utilizado querys en algumas tabelas para realizar o maperamento entre os objetos de User do core da aplicação e User do model. Logo abaixo tem uma pré visualização da query realizada para capturar os dados do usuário e criar o objeto User da aplicação. Pra melhor visualização acesse o arquivo src/api/user/repository.py
+Para a realização dessa query, seguindo os conceitos de Arquitetura Hexagonal adotados no projeto, foram realizadas consultas em várias tabelas para mapear os dados entre o objeto User do core da aplicação e o modelo User do banco de dados. Abaixo está uma prévia da query utilizada para capturar os dados do usuário e criar o objeto User da aplicação. Para visualizar o código completo, acesse o arquivo src/api/user/repository.py.
 
 ``` bash
 
@@ -105,7 +107,7 @@ def get_by_id(self, id: UUID) -> User | None:
 
 ```
 
-Para transformar esse objeto User no retorno esperado, foi feito o manuseio das informações no Use Case GetUser. Para melhor visualização acesse o arquivo src/src/user/application/use_cases/get_user.py
+Após a captura dos dados, o processo de transformação do objeto User para o formato esperado no retorno é realizado no caso de uso GetUser. Para mais detalhes, consulte o arquivo src/core/user/application/use_cases/get_user.py.
 
 ```bash
 
@@ -130,16 +132,17 @@ Para transformar esse objeto User no retorno esperado, foi feito o manuseio das 
 ```
 
 ## 3 - Utilizando a mesma estrutura do banco de dados fornecida anteriormente, e a linguagem que desejar, construa uma API REST que irá listar o papel de um usuário pelo “Id” (role_id).
-No end-point /users/<id> com o método HTTP GET, podemos visualizar as informações do usuário. Internamente, existe uma classe do domínio que se chama User, e nela existe o campo role_id que armazena um UUID relacionado a algum registro da tabela Role. E é feito a mudança para a descrição da role nos usecases de user.
+No endpoint /users/<id>, acessado via o método HTTP GET, é possível visualizar as informações detalhadas de um usuário. Internamente, o sistema utiliza uma classe do domínio chamada User, que contém o campo role_id, responsável por armazenar o UUID relacionado a um registro na tabela Role. Nos casos de uso relacionados a usuários, essa referência é traduzida para a descrição correspondente da Role, garantindo que os dados retornados ao cliente sejam mais compreensíveis e contextualizados.
 
 ![q3](https://github.com/Igorcand/shipay/blob/main/assets/get_user_route.png)
 
 ## 4 - Utilizando a mesma estrutura do banco de dados fornecida anteriormente, e a linguagem que desejar, construa uma API REST que irá criar um usuário. Os campos obrigatórios serão nome, e-mail e papel do usuário. A senha será um campo opcional, caso o usuário não informe uma senha o serviço da API deverá gerar essa senha automaticamente.
-No end-point /users/ com o método HTTP POST, podemos criar um registro de usuário. Como descrito no enunciado, os campos obrigatório são nome, email e role, caso não informe algum desses dados, o erro será retornado para o usuário com o status code 400, bad request.
+
+No endpoint /users/, acessado via o método HTTP POST, é possível criar um novo registro de usuário. Conforme especificado, os campos obrigatórios são nome, email e role. Caso algum desses campos não seja informado, o sistema retornará um erro ao usuário com o status code 400 (Bad Request).
 
 ![q3](https://github.com/Igorcand/shipay/blob/main/assets/post_user_route.png)
 
-O campo senha é opcional e está sendo criado no use case CreateUser. Para melhor visualização acesse o arquivo src/core/user/application/use_cases/create_user.py
+O campo senha é opcional e, caso informado, será tratado no caso de uso CreateUser. Para mais detalhes, consulte o arquivo src/core/user/application/use_cases/create_user.py.
 
 ```bash
     if not input.password:
@@ -148,7 +151,7 @@ O campo senha é opcional e está sendo criado no use case CreateUser. Para melh
 
 ```
 
-Para a alteração da senha do usuário é necessário realizar uma requisição para o end-point /users/<id> no método HTTP PATCH para salvar a senha enviada pelo usuário.
+Já para alterar a senha de um usuário existente, é necessário realizar uma requisição ao endpoint /users/<id> utilizando o método HTTP PATCH, fornecendo a nova senha no corpo da requisição. O sistema irá processar e salvar a senha enviada pelo usuário.
 
 ## 5 - Crie uma documentação que explique como executar seu projeto em ambiente local e também como deverá ser realizado o ‘deploy’ em ambiente produtivo.
 O projeto utiliza sistema de containers Docker e docker-compose para facilitar a configuração e execução local, basta seguir o passo a passo a seguir.
