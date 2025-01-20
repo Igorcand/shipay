@@ -270,3 +270,12 @@ O padrão Strategy permite encapsular diferentes algoritmos ou comportamentos de
 Para SMS ou e-mails, podemos implementar estratégias como uma estratégia padrão para cada fornecedor.
 
 ![q8](https://github.com/Igorcand/shipay/blob/main/assets/strategy.png)
+
+# Autor
+
+Igor Cândido Rodrigues
+
+LinkedIn: www.linkedin.com/in/igorcândido
+Email: igorcr39@gmail.com
+Github: https://github.com/Igorcand
+
