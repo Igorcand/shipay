@@ -168,7 +168,7 @@ docker-compose up --build
 
 ```
 
-Para realizar o deploy da aplicação, foi configurado um pipeline no GitHub Action para poder fazer o deploy de forma automática. os steps configurados foram: Configuração do ambiente Docker, Build da imagem Docker, Execução dos tests, Envio da imgame Docker para o DockerHub, e Deploy para a AWS.
+Para realizar o deploy da aplicação, foi configurado um pipeline no GitHub Action para poder fazer o deploy de forma automática. os steps configurados foram: Configuração do ambiente Docker, Build da imagem Docker, Execução dos tests, Envio da imagem Docker para o DockerHub, e Deploy para a AWS.
 Para visualizar com maior detalhamento acesse o arquivo: /.github/workflows/deploy.yaml
 
 ![q5](https://github.com/Igorcand/shipay/blob/main/assets/pipeline.png)
@@ -180,7 +180,7 @@ A falha ocorre porque a variável WALLET_X_TOKEN_MAX_AGE não está definida no 
 Como cada ambiente (desenvolvimento, homologação, produção, etc.) pode ter seu próprio arquivo .env com valores específicos, o problema está no fato de que o arquivo .env do ambiente de homologação não possui a variável WALLET_X_TOKEN_MAX_AGE configurada. Por isso, o sistema não consegue acessar esse valor, resultando no erro reportado.
 
 
-## 7 - Ajude-nos fazendo o Code Review do código de um robô/rotina que exporta os dados da tabela “users” de tempos em tempos. O código foi disponibilizado no mesmo repositório do git hub dentro da pasta “bot”. ##
+## 7 - Ajude-nos fazendo o Code Review do código de um robô/rotina que exporta os dados da tabela “users” de tempos em tempos. 
 
 #### Credenciais no Código
 
@@ -255,15 +255,18 @@ Adicionar níveis e mensagens de log mais informativas, substituir os print() po
 
 ## 8 - Qual ou quais Padrões de Projeto/Design Patterns você utilizaria para normalizar serviços de terceiros (tornar múltiplas interfaces de diferentes fornecedores uniforme), por exemplo serviços de disparos de e-mails, ou então disparos de SMS.
 
-#### Adapter
+### Adapter
 
 O Design Pattern Adapter é ideal para traduzir a interface de um serviço de terceiros para uma interface esperada pelo sistema. Ele atua como um intermediário que adapta a interface de um fornecedor para que o sistema principal possa utilizá-la de maneira uniforme.
 
 Para disparos de e-mails ou SMS, onde cada fornecedor possui APIs diferentes, podemos criar adaptadores que convertem os métodos específicos de cada fornecedor para um formato padronizado.
 
-#### Strategy
+![q8](https://github.com/Igorcand/shipay/blob/main/assets/adapter.png)
+
+### Strategy
 
 O padrão Strategy permite encapsular diferentes algoritmos ou comportamentos dentro de classes distintas, selecionáveis em tempo de execução. Nesse caso, cada fornecedor seria uma estratégia que implementa a interface comum.
 
 Para SMS ou e-mails, podemos implementar estratégias como uma estratégia padrão para cada fornecedor.
 
+![q8](https://github.com/Igorcand/shipay/blob/main/assets/strategy.png)
