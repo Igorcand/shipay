@@ -26,19 +26,17 @@ docker-compose up --build
 ```
 
 ## Testes
-Esse projeto foi desenvolvido utilizando o conceito de TDD (Test Driven Desing) possuindo vários testes, dentre eles unitários, integração e end-to-end. 
+Esse projeto foi desenvolvido utilizando o conceito de TDD (Test Driven Desing) possuindo vários testes, dentre eles unitários, integração.
 
 Nos testes unitários, sua intenção é testar a menor unidade do sistema, o código. E para isso é bem importante que teste a maior parte de problemas técnicos de implementação possíveis, buscando mitigar ao máximo a possibilidade de um erro de codificação
 
 Testes de integração, nessa camada, você deve buscar executar testes que garantam a integridade com outros componentes como tabelas, arquivos e filas
 
-Já os testes End to End devem buscar testar sua aplicação de ponta a ponta, com um resultado funcional observável. Neste momento a ideia é testar o sistema da forma mais próxima do ambiente produtivo.
-
 ### Como rodar os testes
 
 ```bash
 # Com os containeres rodando, rode o comando
-docker exec -it app bash
+docker exec -it shipay_app bash
 
 # Rode os testes
 pytest
@@ -47,11 +45,15 @@ pytest
 
 ## API
 
-Para melhor visualização das rotas, acesse o endpoint http://127.0.0.1:8000/ para visualizar o swagger
+Para melhor visualização das rotas, acesse o endpoint http://127.0.0.1:8000/apidocs para visualizar o swagger
+
+![api](https://github.com/Igorcand/shipay/blob/master/assets/swagger.png)
 
 # QUESTÕES # 
 
 ## 1 - Construa uma consulta SQL que retorne o nome, e-mail, a descrição do papel e as descrições das permissões/claims que um usuário possui. ##
+
+Para realizarmos esse tipo de consulta precisamos realizar alguns joins para formar tabelas com todas as informações necessárias para a query. O primeiro join foi utilizado com o comando INNER JOIN, pois como o campo role_id é uma chave estrangeira da tabela role, temos a certeza que para cada registro de user temos um registro de role correspondente, então o INNER JOIN retorna apenas os registros que possuem correspondência em ambas as tabelas. Após isso, fazemos mais dois joins utilizando o comando LEFT JOIN, pois as permissões (claims) são itens não obrigatórios, logo o comando utilizado nos retorna todos os registros a esquerda, ou seja, todos os usuários aparecerão mesmo os que não tem permissões.
 
 ```
     SELECT 
@@ -71,6 +73,100 @@ Para melhor visualização das rotas, acesse o endpoint http://127.0.0.1:8000/ p
         u.name, c.description;
 
 ```
+
+## 2 -  Utilizando a mesma estrutura do banco de dados da questão anterior, rescreva a consulta anterior utilizando um ORM (Object Relational Mapping) de sua preferência utilizando a query language padrão do ORM adotado(SQL Alchemy)
+
+Para a realização dessa query, utilizando os conceitos de Arquitetura Hexagonal adotado para o projeto, foi utilizado querys en algumas tabelas para realizar o maperamento entre os objetos de User do core da aplicação e User do model. Logo abaixo tem uma pré visualização da query realizada para capturar os dados do usuário e criar o objeto User da aplicação. Pra melhor visualização acesse o arquivo src/api/user/repository.py
+
+``` bash
+
+def get_by_id(self, id: UUID) -> User | None:
+        user_model = self.session.query(UserModel).filter_by(id=id).first()
+        if user_model:
+            # Filtra claims ativas associadas ao usuário
+            claim_ids = {
+                claim.claim_id
+                for claim in (
+                    self.session.query(UserClaim)
+                    .join(Claim, Claim.id == UserClaim.claim_id)
+                    .filter(UserClaim.user_id == id, Claim.active == True)
+                    .all()
+                )
+            }
+            return User(
+                id=user_model.id,
+                name=user_model.name,
+                email=user_model.email,
+                role_id=user_model.role_id,
+                password=user_model.password,
+                claim_ids=claim_ids,
+            )
+        return None
+
+```
+
+Para transformar esse objeto User no retorno esperado, foi feito o manuseio das informações no Use Case GetUser. Para melhor visualização acesse o arquivo src/src/user/application/use_cases/get_user.py
+
+```bash
+
+    def execute(self, input: Input):
+        user = self.repository.get_by_id(input.id)
+        if user is None:
+            raise UserNotFound(f"User with {input.id} not found")
+        
+        role = self.role_repository.get_by_id(user.role_id)
+
+        claims = self.claim_repository.list() 
+        claims_descriptions = {claim.id: claim.description for claim in claims}
+
+        return self.Output(
+                    id=user.id,
+                    name=user.name,
+                    email=user.email,
+                    role=role.description,
+                    claims={claims_descriptions.get(claim_id) for claim_id in user.claim_ids }
+            )
+
+```
+
+## 3 - Utilizando a mesma estrutura do banco de dados fornecida anteriormente, e a linguagem que desejar, construa uma API REST que irá listar o papel de um usuário pelo “Id” (role_id).
+No end-point /users/<id> com o método HTTP GET, podemos visualizar as informações do usuário. Internamente, existe uma classe do domínio que se chama User, e nela existe o campo role_id que armazena um UUID relacionado a algum registro da tabela Role. E é feito a mudança para a descrição da role nos usecases de user.
+
+![q3](https://github.com/Igorcand/shipay/blob/master/assets/get_user_route.png)
+
+## 4 - Utilizando a mesma estrutura do banco de dados fornecida anteriormente, e a linguagem que desejar, construa uma API REST que irá criar um usuário. Os campos obrigatórios serão nome, e-mail e papel do usuário. A senha será um campo opcional, caso o usuário não informe uma senha o serviço da API deverá gerar essa senha automaticamente.
+No end-point /users/ com o método HTTP POST, podemos criar um registro de usuário. Como descrito no enunciado, os campos obrigatório são nome, email e role, caso não informe algum desses dados, o erro será retornado para o usuário com o status code 400, bad request.
+
+![q3](https://github.com/Igorcand/shipay/blob/master/assets/post_user_route.png)
+
+O campo senha é opcional e está sendo criado no use case CreateUser. Para melhor visualização acesse o arquivo src/core/user/application/use_cases/create_user.py
+
+```bash
+    if not input.password:
+        caracteres = string.ascii_letters + string.digits + string.punctuation
+        input.password =  ''.join(random.choice(caracteres) for _ in range(12))
+
+```
+
+Para a alteração da senha do usuário é necessário realizar uma requisição para o end-point /users/<id> no método HTTP PATCH para salvar a senha enviada pelo usuário.
+
+## 5 - Crie uma documentação que explique como executar seu projeto em ambiente local e também como deverá ser realizado o ‘deploy’ em ambiente produtivo.
+O projeto utiliza sistema de containers Docker e docker-compose para facilitar a configuração e execução local, basta seguir o passo a passo a seguir.
+
+```bash
+# clone este repositorio
+git clone https://github.com/Igorcand/shipay
+
+# Entre na pasta
+cd shipay
+
+# Rode os serviços
+docker-compose up --build
+
+```
+
+Para realizar o deploy da aplicação, foi configurado um pipeline no GitHub Action para poder fazer o deploy de forma automática. os steps configurados foram: Configuração do ambiente Docker, Build da imagem Docker, Execução dos tests, Envio da imgame Docker para o DockerHub, e Deploy para a AWS.
+Para visualizar com maior detalhamento acesse o arquivo: /.github/workflows/deploy.yaml
 
 ## 6 - De acordo com o log capturado, o que pode estar originando a falha?
 
